@@ -1,4 +1,5 @@
-# excel-download-nextjs
+# @natsunaaa/nextjs-sheet-export
+
 
 [한국어](#한국어) | [English](#english) | [中文](#中文)
 
@@ -12,7 +13,8 @@ API 응답 데이터를 Excel/CSV 파일로 변환하여 다운로드합니다.
 ### 설치
 
 ```bash
-npm install excel-download-nextjs
+npm install @natsunaaa/nextjs-sheet-export
+
 ```
 
 ### 빠른 시작
@@ -22,7 +24,7 @@ npm install excel-download-nextjs
 `app/api/excel-download/route.ts` (경로는 자유롭게 설정)
 
 ```ts
-import { createExcelRoute } from 'excel-download-nextjs/route'
+import { createExcelRoute } from '@natsunaaa/nextjs-sheet-export/route'
 import { apiClient } from '@/lib/axios'
 
 export const POST = createExcelRoute({
@@ -36,7 +38,7 @@ export const POST = createExcelRoute({
 `lib/excel.ts`
 
 ```ts
-import { createExcelDownloader } from 'excel-download-nextjs/client'
+import { createExcelDownloader } from '@natsunaaa/nextjs-sheet-export/client'
 
 export const downloadExcel = createExcelDownloader({
   routePath: '/api/excel-download',
@@ -365,7 +367,8 @@ Converts API response data into Excel/CSV files for download.
 ### Installation
 
 ```bash
-npm install excel-download-nextjs
+npm install @natsunaaa/nextjs-sheet-export
+
 ```
 
 ### Quick Start
@@ -375,7 +378,7 @@ npm install excel-download-nextjs
 `app/api/excel-download/route.ts` (path is configurable)
 
 ```ts
-import { createExcelRoute } from 'excel-download-nextjs/route'
+import { createExcelRoute } from '@natsunaaa/nextjs-sheet-export/route'
 import { apiClient } from '@/lib/axios'
 
 export const POST = createExcelRoute({
@@ -389,7 +392,7 @@ export const POST = createExcelRoute({
 `lib/excel.ts`
 
 ```ts
-import { createExcelDownloader } from 'excel-download-nextjs/client'
+import { createExcelDownloader } from '@natsunaaa/nextjs-sheet-export/client'
 
 export const downloadExcel = createExcelDownloader({
   routePath: '/api/excel-download',
@@ -650,7 +653,8 @@ downloadExcel(DownloadRequest)       → Download call
 ### 安装
 
 ```bash
-npm install excel-download-nextjs
+npm install @natsunaaa/nextjs-sheet-export
+
 ```
 
 ### 快速开始
@@ -660,7 +664,7 @@ npm install excel-download-nextjs
 `app/api/excel-download/route.ts`（路径可自由配置）
 
 ```ts
-import { createExcelRoute } from 'excel-download-nextjs/route'
+import { createExcelRoute } from '@natsunaaa/nextjs-sheet-export/route'
 import { apiClient } from '@/lib/axios'
 
 export const POST = createExcelRoute({
@@ -674,7 +678,7 @@ export const POST = createExcelRoute({
 `lib/excel.ts`
 
 ```ts
-import { createExcelDownloader } from 'excel-download-nextjs/client'
+import { createExcelDownloader } from '@natsunaaa/nextjs-sheet-export/client'
 
 export const downloadExcel = createExcelDownloader({
   routePath: '/api/excel-download',
