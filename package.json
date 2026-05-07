@@ -1,5 +1,5 @@
 {
-  "name": "excel-download-nextjs",
+  "name": "@natsunaaa/nextjs-sheet-export",
   "version": "1.0.0",
   "description": "Declarative Excel/CSV download library for Next.js App Router",
   "license": "MIT",
