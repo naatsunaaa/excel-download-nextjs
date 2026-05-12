@@ -21,12 +21,14 @@ export interface SourceColumn {
   key: string
   label: string
   style?: ColumnStyle
+  transform?: (value: unknown, row: Record<string, unknown>) => unknown
 }
 
 export interface MergeColumn {
   key: string[]
   label: string
   style?: ColumnStyle
+  transform?: (value: unknown, row: Record<string, unknown>) => unknown
 }
 
 export interface Source {

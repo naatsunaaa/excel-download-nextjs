@@ -17,6 +17,24 @@ function isMergeSheet(sheet: Sheet): sheet is MergeSheet {
   return 'merge' in sheet
 }
 
+function applyTransforms(
+  rows: Record<string, unknown>[],
+  columns: SourceColumn[]
+): Record<string, unknown>[] {
+  const hasTransform = columns.some((col) => col.transform)
+  if (!hasTransform) return rows
+
+  return rows.map((row) => {
+    const transformed = { ...row }
+    for (const col of columns) {
+      if (col.transform) {
+        transformed[col.key] = col.transform(row[col.key], row)
+      }
+    }
+    return transformed
+  })
+}
+
 async function processSourceSheet(
   sheet: SourceSheet,
   config: RouteConfig,
@@ -32,7 +50,8 @@ async function processSourceSheet(
 
   const blocks: BlockData[] = sheet.sources.map((source) => {
     const rows = resolveAllPaths(data, source.dataPath) as Record<string, unknown>[]
-    return { columns: source.columns, rows }
+    const transformedRows = applyTransforms(rows, source.columns)
+    return { columns: source.columns, rows: transformedRows }
   })
 
   return { name: sheet.name, blocks }
@@ -69,7 +88,8 @@ async function processMergeSheet(
       for (const col of columns) {
         const keyForThisEndpoint = col.key[epIdx]
         if (keyForThisEndpoint && row[keyForThisEndpoint] != null) {
-          mappedRow[col.label] = row[keyForThisEndpoint]
+          const value = row[keyForThisEndpoint]
+          mappedRow[col.label] = col.transform ? col.transform(value, row) : value
         }
       }
       allRows.push(mappedRow)

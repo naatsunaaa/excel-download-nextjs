@@ -258,6 +258,35 @@ columns: [
 | `font.size` | 글자 크기 | `12` |
 | `fill` | 배경 색상 | `{ type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF00' } }` |
 
+### 데이터 변환 (transform)
+
+컬럼에 `transform` 함수를 지정하면 셀에 값을 넣기 전에 데이터를 가공할 수 있습니다.
+
+```ts
+import { format } from 'date-fns'
+
+columns: [
+  {
+    key: 'createdAt',
+    label: '등록일',
+    transform: (value) => format(new Date(value as string), 'yyyy-MM-dd'),
+  },
+  {
+    key: 'status',
+    label: '상태',
+    transform: (value) => value === 'active' ? '활성' : '비활성',
+  },
+  {
+    key: 'firstName',
+    label: '이름',
+    transform: (value, row) => `${row.lastName} ${value}`,
+  },
+]
+```
+
+`transform(value, row)` — 첫 번째 인자는 해당 key의 값, 두 번째 인자는 행 전체 데이터입니다.  
+다른 필드를 참조하거나 조합하는 것도 가능합니다.
+
 ### 포맷 선택
 
 ```ts
@@ -612,6 +641,35 @@ columns: [
 | `font.size` | Font size | `12` |
 | `fill` | Background color | `{ type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF00' } }` |
 
+### Data Transform
+
+Use the `transform` function on columns to process data before writing to cells.
+
+```ts
+import { format } from 'date-fns'
+
+columns: [
+  {
+    key: 'createdAt',
+    label: 'Created At',
+    transform: (value) => format(new Date(value as string), 'yyyy-MM-dd'),
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    transform: (value) => value === 'active' ? 'Active' : 'Inactive',
+  },
+  {
+    key: 'firstName',
+    label: 'Full Name',
+    transform: (value, row) => `${row.lastName} ${value}`,
+  },
+]
+```
+
+`transform(value, row)` — the first argument is the value for that key, the second is the entire row data.  
+You can reference or combine other fields in the row.
+
 ### Format Selection
 
 ```ts
@@ -897,6 +955,35 @@ columns: [
 | `font.color` | 字体颜色 | `{ argb: 'FF0000' }` |
 | `font.size` | 字体大小 | `12` |
 | `fill` | 背景颜色 | `{ type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF00' } }` |
+
+### 数据转换 (transform)
+
+在列上指定 `transform` 函数，可以在写入单元格之前对数据进行加工。
+
+```ts
+import { format } from 'date-fns'
+
+columns: [
+  {
+    key: 'createdAt',
+    label: '创建日期',
+    transform: (value) => format(new Date(value as string), 'yyyy-MM-dd'),
+  },
+  {
+    key: 'status',
+    label: '状态',
+    transform: (value) => value === 'active' ? '活跃' : '未活跃',
+  },
+  {
+    key: 'firstName',
+    label: '姓名',
+    transform: (value, row) => `${row.lastName} ${value}`,
+  },
+]
+```
+
+`transform(value, row)` — 第一个参数是该 key 的值，第二个参数是整行数据。  
+可以引用或组合行内其他字段。
 
 ### 格式选择
 
