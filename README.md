@@ -260,31 +260,54 @@ columns: [
 
 ### 데이터 변환 (transform)
 
-컬럼에 `transform` 함수를 지정하면 셀에 값을 넣기 전에 데이터를 가공할 수 있습니다.
+셀에 값을 넣기 전에 데이터를 가공할 수 있습니다.  
+transform 함수는 서버에서 실행되므로, route 설정에 등록하고 클라이언트에서는 문자열로 참조합니다.
+
+#### 1. transform 정의 (`lib/excel.ts`)
 
 ```ts
+import { createExcelDownloader } from '@natsunaaa/nextjs-sheet-export/client'
 import { format } from 'date-fns'
 
+export const downloadExcel = createExcelDownloader({
+  routePath: '/api/excel-download',
+})
+
+export const transforms = {
+  formatDate: (value: unknown) => format(new Date(value as string), 'yyyy-MM-dd'),
+  formatDateTime: (value: unknown) => format(new Date(value as string), 'yyyy-MM-dd HH:mm'),
+  statusKo: (value: unknown) => value === 'active' ? '활성' : '비활성',
+  currency: (value: unknown) => `${Number(value).toLocaleString()}원`,
+  fullName: (value: unknown, row: Record<string, unknown>) => `${row.lastName} ${value}`,
+}
+```
+
+#### 2. route에 등록 (`app/api/excel-download/route.ts`)
+
+```ts
+import { createExcelRoute } from '@natsunaaa/nextjs-sheet-export/route'
+import { apiClient } from '@/lib/axios'
+import { transforms } from '@/lib/excel'
+
+export const POST = createExcelRoute({
+  fetcher: apiClient,
+  baseUrl: process.env.API_BASE_URL,
+  transforms,
+})
+```
+
+#### 3. 클라이언트에서 문자열로 참조
+
+```ts
 columns: [
-  {
-    key: 'createdAt',
-    label: '등록일',
-    transform: (value) => format(new Date(value as string), 'yyyy-MM-dd'),
-  },
-  {
-    key: 'status',
-    label: '상태',
-    transform: (value) => value === 'active' ? '활성' : '비활성',
-  },
-  {
-    key: 'firstName',
-    label: '이름',
-    transform: (value, row) => `${row.lastName} ${value}`,
-  },
+  { key: 'createdAt', label: '등록일', transform: 'formatDate' },
+  { key: 'status', label: '상태', transform: 'statusKo' },
+  { key: 'price', label: '금액', transform: 'currency' },
+  { key: 'firstName', label: '이름', transform: 'fullName' },
 ]
 ```
 
-`transform(value, row)` — 첫 번째 인자는 해당 key의 값, 두 번째 인자는 행 전체 데이터입니다.  
+`transform` 함수의 시그니처: `(value: unknown, row: Record<string, unknown>) => unknown`  
 다른 필드를 참조하거나 조합하는 것도 가능합니다.
 
 ### 포맷 선택
@@ -643,31 +666,54 @@ columns: [
 
 ### Data Transform
 
-Use the `transform` function on columns to process data before writing to cells.
+Transform functions process data before writing to cells.  
+Since transforms run on the server, register them in the route config and reference by name from the client.
+
+#### 1. Define transforms (`lib/excel.ts`)
 
 ```ts
+import { createExcelDownloader } from '@natsunaaa/nextjs-sheet-export/client'
 import { format } from 'date-fns'
 
+export const downloadExcel = createExcelDownloader({
+  routePath: '/api/excel-download',
+})
+
+export const transforms = {
+  formatDate: (value: unknown) => format(new Date(value as string), 'yyyy-MM-dd'),
+  formatDateTime: (value: unknown) => format(new Date(value as string), 'yyyy-MM-dd HH:mm'),
+  statusEn: (value: unknown) => value === 'active' ? 'Active' : 'Inactive',
+  currency: (value: unknown) => `$${Number(value).toLocaleString()}`,
+  fullName: (value: unknown, row: Record<string, unknown>) => `${row.lastName} ${value}`,
+}
+```
+
+#### 2. Register in route (`app/api/excel-download/route.ts`)
+
+```ts
+import { createExcelRoute } from '@natsunaaa/nextjs-sheet-export/route'
+import { apiClient } from '@/lib/axios'
+import { transforms } from '@/lib/excel'
+
+export const POST = createExcelRoute({
+  fetcher: apiClient,
+  baseUrl: process.env.API_BASE_URL,
+  transforms,
+})
+```
+
+#### 3. Reference by name from client
+
+```ts
 columns: [
-  {
-    key: 'createdAt',
-    label: 'Created At',
-    transform: (value) => format(new Date(value as string), 'yyyy-MM-dd'),
-  },
-  {
-    key: 'status',
-    label: 'Status',
-    transform: (value) => value === 'active' ? 'Active' : 'Inactive',
-  },
-  {
-    key: 'firstName',
-    label: 'Full Name',
-    transform: (value, row) => `${row.lastName} ${value}`,
-  },
+  { key: 'createdAt', label: 'Created At', transform: 'formatDate' },
+  { key: 'status', label: 'Status', transform: 'statusEn' },
+  { key: 'price', label: 'Price', transform: 'currency' },
+  { key: 'firstName', label: 'Full Name', transform: 'fullName' },
 ]
 ```
 
-`transform(value, row)` — the first argument is the value for that key, the second is the entire row data.  
+Transform function signature: `(value: unknown, row: Record<string, unknown>) => unknown`  
 You can reference or combine other fields in the row.
 
 ### Format Selection
@@ -958,31 +1004,54 @@ columns: [
 
 ### 数据转换 (transform)
 
-在列上指定 `transform` 函数，可以在写入单元格之前对数据进行加工。
+可以在写入单元格之前对数据进行加工。  
+transform 函数在服务端执行，因此需要在 route 配置中注册，客户端通过字符串名称引用。
+
+#### 1. 定义 transforms（`lib/excel.ts`）
 
 ```ts
+import { createExcelDownloader } from '@natsunaaa/nextjs-sheet-export/client'
 import { format } from 'date-fns'
 
+export const downloadExcel = createExcelDownloader({
+  routePath: '/api/excel-download',
+})
+
+export const transforms = {
+  formatDate: (value: unknown) => format(new Date(value as string), 'yyyy-MM-dd'),
+  formatDateTime: (value: unknown) => format(new Date(value as string), 'yyyy-MM-dd HH:mm'),
+  statusZh: (value: unknown) => value === 'active' ? '活跃' : '未活跃',
+  currency: (value: unknown) => `¥${Number(value).toLocaleString()}`,
+  fullName: (value: unknown, row: Record<string, unknown>) => `${row.lastName} ${value}`,
+}
+```
+
+#### 2. 在 route 中注册（`app/api/excel-download/route.ts`）
+
+```ts
+import { createExcelRoute } from '@natsunaaa/nextjs-sheet-export/route'
+import { apiClient } from '@/lib/axios'
+import { transforms } from '@/lib/excel'
+
+export const POST = createExcelRoute({
+  fetcher: apiClient,
+  baseUrl: process.env.API_BASE_URL,
+  transforms,
+})
+```
+
+#### 3. 客户端通过字符串引用
+
+```ts
 columns: [
-  {
-    key: 'createdAt',
-    label: '创建日期',
-    transform: (value) => format(new Date(value as string), 'yyyy-MM-dd'),
-  },
-  {
-    key: 'status',
-    label: '状态',
-    transform: (value) => value === 'active' ? '活跃' : '未活跃',
-  },
-  {
-    key: 'firstName',
-    label: '姓名',
-    transform: (value, row) => `${row.lastName} ${value}`,
-  },
+  { key: 'createdAt', label: '创建日期', transform: 'formatDate' },
+  { key: 'status', label: '状态', transform: 'statusZh' },
+  { key: 'price', label: '金额', transform: 'currency' },
+  { key: 'firstName', label: '姓名', transform: 'fullName' },
 ]
 ```
 
-`transform(value, row)` — 第一个参数是该 key 的值，第二个参数是整行数据。  
+transform 函数签名：`(value: unknown, row: Record<string, unknown>) => unknown`  
 可以引用或组合行内其他字段。
 
 ### 格式选择

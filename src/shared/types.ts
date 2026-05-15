@@ -17,18 +17,20 @@ export interface ColumnStyle {
   }
 }
 
+export type TransformFn = (value: unknown, row: Record<string, unknown>) => unknown
+
 export interface SourceColumn {
   key: string
   label: string
   style?: ColumnStyle
-  transform?: (value: unknown, row: Record<string, unknown>) => unknown
+  transform?: string
 }
 
 export interface MergeColumn {
   key: string[]
   label: string
   style?: ColumnStyle
-  transform?: (value: unknown, row: Record<string, unknown>) => unknown
+  transform?: string
 }
 
 export interface Source {
@@ -81,6 +83,7 @@ export interface RouteConfig {
   getHeaders?: (req: Request) => Record<string, string> | Promise<Record<string, string>>
   baseUrl?: string
   defaultStyles?: DefaultStyles
+  transforms?: Record<string, TransformFn>
 }
 
 export interface ClientConfig {

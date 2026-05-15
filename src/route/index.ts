@@ -7,6 +7,7 @@ import type {
   SheetData,
   BlockData,
   SourceColumn,
+  TransformFn,
 } from '../shared/types'
 import { resolveHeaders, fetchApi } from './fetcher'
 import { resolveAllPaths } from './data-resolver'
@@ -19,16 +20,20 @@ function isMergeSheet(sheet: Sheet): sheet is MergeSheet {
 
 function applyTransforms(
   rows: Record<string, unknown>[],
-  columns: SourceColumn[]
+  columns: SourceColumn[],
+  transforms?: Record<string, TransformFn>
 ): Record<string, unknown>[] {
   const hasTransform = columns.some((col) => col.transform)
-  if (!hasTransform) return rows
+  if (!hasTransform || !transforms) return rows
 
   return rows.map((row) => {
     const transformed = { ...row }
     for (const col of columns) {
       if (col.transform) {
-        transformed[col.key] = col.transform(row[col.key], row)
+        const fn = transforms[col.transform]
+        if (fn) {
+          transformed[col.key] = fn(row[col.key], row)
+        }
       }
     }
     return transformed
@@ -50,7 +55,7 @@ async function processSourceSheet(
 
   const blocks: BlockData[] = sheet.sources.map((source) => {
     const rows = resolveAllPaths(data, source.dataPath) as Record<string, unknown>[]
-    const transformedRows = applyTransforms(rows, source.columns)
+    const transformedRows = applyTransforms(rows, source.columns, config.transforms)
     return { columns: source.columns, rows: transformedRows }
   })
 
@@ -89,7 +94,11 @@ async function processMergeSheet(
         const keyForThisEndpoint = col.key[epIdx]
         if (keyForThisEndpoint && row[keyForThisEndpoint] != null) {
           const value = row[keyForThisEndpoint]
-          mappedRow[col.label] = col.transform ? col.transform(value, row) : value
+          if (col.transform && config.transforms?.[col.transform]) {
+            mappedRow[col.label] = config.transforms[col.transform](value, row)
+          } else {
+            mappedRow[col.label] = value
+          }
         }
       }
       allRows.push(mappedRow)
@@ -153,6 +162,7 @@ export function createExcelRoute(config: RouteConfig) {
 export type {
   RouteConfig,
   DefaultStyles,
+  TransformFn,
   DownloadRequest,
   Sheet,
   SourceSheet,
